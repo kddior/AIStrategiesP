@@ -511,7 +511,7 @@
         <div class="play-btn" onclick="startIntro()">&#9654; Click to Start</div>
     </div>
     <video id="intro-video" preload="auto">
-        <source src="/static/videos/Animation_AI_Hope_v8.mp4" type="video/mp4">
+        <source src="./static/videos/Animation_AI_Hope_v8.mp4" type="video/mp4">
     </video>
 </div>
 
@@ -524,23 +524,23 @@
     <div id="slide-container">
         <div id="slide-wrapper">
             <img id="slide-image" src="" alt="Slide">
-            <img id="slide-logo" src="/static/slides/logo.png" alt="">
+            <img id="slide-logo" src="./static/slides/logo.png" alt="">
 
             <!-- Slide 5: 3D country shapes floating out -->
             <div id="s5-overlay">
                 <!-- Nigeria — position matches green shape on map -->
                 <div class="s5-country-3d float1" style="left:71%;top:32%;width:45px;height:38px;">
-                    <img src="/static/slides/s5_nigeria.png" alt="Nigeria">
+                    <img src="./static/slides/s5_nigeria.png" alt="Nigeria">
                     <div class="label">UBA / Ecobank</div>
                 </div>
                 <!-- Kenya -->
                 <div class="s5-country-3d float2" style="left:80.5%;top:36%;width:25px;height:40px;">
-                    <img src="/static/slides/s5_kenya.png" alt="Kenya">
+                    <img src="./static/slides/s5_kenya.png" alt="Kenya">
                     <div class="label">Equity Group</div>
                 </div>
                 <!-- South Africa -->
                 <div class="s5-country-3d float3" style="left:75.5%;top:53%;width:55px;height:30px;">
-                    <img src="/static/slides/s5_southafrica.png" alt="South Africa">
+                    <img src="./static/slides/s5_southafrica.png" alt="South Africa">
                     <div class="label">Standard Bank</div>
                 </div>
             </div>
@@ -579,7 +579,7 @@
     <!-- Slide 6 view -->
     <div id="slide6-view">
         <div id="s6-row-strip">
-            <img id="s6-header-img" src="/static/slides/s6_header.png" alt="Header">
+            <img id="s6-header-img" src="./static/slides/s6_header.png" alt="Header">
             <div id="s6-row-wrapper">
                 <img id="s6-row-img" src="" alt="Current Role">
             </div>
@@ -594,7 +594,7 @@
     <!-- Slide 7: cost image panel -->
     <div id="s7-panel">
         <span id="s7-label">Uber — AI Cost Reality</span>
-        <img src="/static/slides/s7_cost_image.png" alt="Uber AI Costs">
+        <img src="./static/slides/s7_cost_image.png" alt="Uber AI Costs">
     </div>
 
     <!-- Slide 5: IT Tool panel -->
@@ -607,7 +607,7 @@
     <div id="video-demo-panel">
         <span id="video-demo-label"><span class="live-dot"></span> Copilot Demo</span>
         <video id="demo-video" preload="auto">
-            <source src="/static/videos/copilot_demo.mp4" type="video/mp4">
+            <source src="./static/videos/copilot_demo.mp4" type="video/mp4">
         </video>
         <div id="video-controls">
             <button class="vc-btn" onclick="vcRestart()" title="Restart">&#9198;</button>
@@ -715,7 +715,7 @@ function s6Enter(step) {
     document.getElementById('slide6-view').classList.add('active');
     const ri = document.getElementById('s6-row-img');
     ri.style.opacity = '0';
-    setTimeout(() => { ri.src = `/static/slides/s6_row_${step+1}.png`; ri.style.opacity = '1'; }, 100);
+    setTimeout(() => { ri.src = `./static/slides/s6_row_${step+1}.png`; ri.style.opacity = '1'; }, 100);
     const row = S6_ROWS[step];
     document.getElementById('s6-indicator-text').textContent = `${row.label} (${step+1}/${S6_ROWS.length}) — Live Demo`;
     const iframe = document.getElementById('s6-demo-frame');
@@ -759,7 +759,7 @@ function s9Enter(step) {
         drawer.style.top = (S9_POSITIONS[step] - 6) + '%';
 
         // Set image and label
-        drawerImg.src = `/static/slides/s9_block_${step + 1}.png`;
+        drawerImg.src = `./static/slides/s9_block_${step + 1}.png`;
         drawerLabel.textContent = `${step + 1}/${S9_LABELS.length} — ${S9_LABELS[step]}`;
 
         // Reset and slide in from right
@@ -813,7 +813,7 @@ function s11Enter(step) {
     drawer.classList.add('slide-out');
 
     setTimeout(() => {
-        drawerImg.src = `/static/slides/s11_col_${step + 1}.png`;
+        drawerImg.src = `./static/slides/s11_col_${step + 1}.png`;
         drawerLabel.textContent = `${step + 1}. ${S11_LABELS[step]}`;
         drawer.classList.remove('slide-out');
         void drawer.offsetWidth;
@@ -881,7 +881,7 @@ function goToSlide(n) {
     currentSlide = n;
     document.getElementById('slide-container').style.display = 'flex';
     document.getElementById('slide6-view').classList.remove('active');
-    document.getElementById('slide-image').src = `/static/slides/slide_${n}.png`;
+    document.getElementById('slide-image').src = `./static/slides/slide_${n}.png`;
 
     if (n === 6) s6Step = -1;
     if (n === 9) s9Step = -1;
