@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Strategy Presentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* ── Intro ── */
+        #intro-screen {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #000; z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        #intro-screen video { max-width: 100%; max-height: 100%; object-fit: contain; }
+        #intro-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.5); z-index: 1001;
+        }
+        #intro-overlay .play-btn {
+            font-size: 80px; color: #fff; cursor: pointer;
+            transition: transform 0.2s; text-shadow: 0 0 30px rgba(0,150,255,0.5);
+        }
+        #intro-overlay .play-btn:hover { transform: scale(1.2); }
+        #intro-overlay.hidden { display: none; }
+
+        /* ── Presentation ── */
+        #presentation { display: none; width: 100vw; height: 100vh; position: relative; }
+
+        /* ── Normal Slide ── */
+        #slide-container {
+            width: 100%; height: calc(100% - 60px);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; transition: width 0.5s ease; position: relative;
+        }
+        /* legacy, now video-split */
+
+        /* Image wrapper — overlay positioned relative to actual image */
+        #slide-wrapper {
+            position: relative;
+            display: inline-flex;
+            max-width: 100%; max-height: 100%;
+        }
+        #slide-image {
+            max-width: 100%; max-height: calc(100vh - 60px);
+            object-fit: contain; border-radius: 4px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            display: block;
+        }
+
+        /* ═══════════════════════════════
+           SLIDE 5 — 3D Floating Countries
+           ═══════════════════════════════ */
+        #s5-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; display: none;
+        }
+        #s5-overlay.active { display: block; }
+
+        .s5-country-3d {
+            position: absolute;
+            opacity: 0;
+            transform: perspective(800px) translateZ(0px) scale(1);
+            transition: all 1.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-style: preserve-3d;
+        }
+        .s5-country-3d.pop {
+            opacity: 1;
+            transform: perspective(800px) translateZ(80px) scale(1.8);
+        }
+        .s5-country-3d.pop.float1 { animation: countryPop1 3.5s ease-in-out 1.4s infinite; }
+        .s5-country-3d.pop.float2 { animation: countryPop2 3.5s ease-in-out 1.4s infinite; }
+        .s5-country-3d.pop.float3 { animation: countryPop3 3.5s ease-in-out 1.4s infinite; }
+
+        @keyframes countryPop1 {
+            0%, 100% { transform: perspective(800px) translateZ(80px) scale(1.8) translateY(0) rotateY(0deg); }
+            50% { transform: perspective(800px) translateZ(130px) scale(2.0) translateY(-12px) rotateY(5deg); }
+        }
+        @keyframes countryPop2 {
+            0%, 100% { transform: perspective(800px) translateZ(80px) scale(1.8) translateY(0) rotateY(0deg); }
+            50% { transform: perspective(800px) translateZ(120px) scale(1.95) translateY(-10px) rotateY(-4deg); }
+        }
+        @keyframes countryPop3 {
+            0%, 100% { transform: perspective(800px) translateZ(80px) scale(1.8) translateY(0) rotateX(0deg); }
+            50% { transform: perspective(800px) translateZ(140px) scale(2.1) translateY(-14px) rotateX(4deg); }
+        }
+
+        .s5-country-3d img {
+            width: 100%; height: 100%; object-fit: contain;
+            filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6))
+                    drop-shadow(0 0 15px rgba(0,220,100,0.6))
+                    drop-shadow(0 0 40px rgba(0,255,100,0.3))
+                    brightness(1.15) saturate(1.3);
+        }
+
+        .s5-country-3d .label {
+            position: absolute;
+            bottom: -22px; left: 50%;
+            transform: translateX(-50%);
+            color: #fff; font-size: 9px; font-weight: 800;
+            background: linear-gradient(135deg, rgba(0,160,80,0.95), rgba(0,120,60,0.95));
+            padding: 3px 8px; border-radius: 8px;
+            white-space: nowrap;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.6);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            letter-spacing: 0.5px;
+        }
+
+        /* ═══════════════════════════════
+           SLIDE 6 — Row + Demo
+           ═══════════════════════════════ */
+        #slide6-view {
+            display: none; width: 100%; height: calc(100vh - 60px);
+            flex-direction: column;
+        }
+        #slide6-view.active { display: flex; }
+
+        #s6-row-strip {
+            width: 100%; flex-shrink: 0;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        #s6-header-img {
+            width: 100%; max-height: 70px; object-fit: contain;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+        }
+        #s6-row-wrapper {
+            width: 100%; padding: 8px 16px;
+            background: linear-gradient(180deg, #1e2a3a 0%, #0f1923 100%);
+            border-top: 2px solid rgba(100,180,255,0.5);
+            border-bottom: 3px solid rgba(0,0,0,0.8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6), 0 -1px 0 rgba(100,180,255,0.2),
+                inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -2px 5px rgba(0,0,0,0.3),
+                0 8px 25px rgba(0,100,255,0.15);
+            position: relative; z-index: 2;
+        }
+        #s6-row-wrapper::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 40%, rgba(0,0,0,0.1) 100%);
+            pointer-events: none;
+        }
+        #s6-row-img {
+            width: 100%; max-height: 95px; object-fit: contain; display: block;
+            transition: opacity 0.4s ease; filter: brightness(1.05) contrast(1.05);
+        }
+        #s6-indicator {
+            background: linear-gradient(135deg, #0055aa, #0088dd);
+            color: #fff; padding: 6px 18px; font-size: 13px; font-weight: 700;
+            text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px;
+            border-bottom: 1px solid #004488; box-shadow: 0 2px 10px rgba(0,100,255,0.3);
+        }
+        .live-dot {
+            width: 8px; height: 8px; background: #ff3333; border-radius: 50%;
+            display: inline-block; animation: pulse-dot 1.5s infinite;
+        }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        #s6-demo-frame { width: 100%; flex: 1; border: none; background: #fff; }
+
+        /* ═══════════════════════════════
+           SLIDE 9 — Real sliding drawer
+           ═══════════════════════════════ */
+        #s9-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; display: none;
+        }
+        #s9-overlay.active { display: block; }
+
+        #s9-dim {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #s9-dim.on { opacity: 1; }
+
+        /* The sliding drawer — a cropped block image that physically moves */
+        #s9-drawer {
+            position: absolute;
+            left: 7%; right: 8%;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateX(110%);  /* starts off-screen right */
+            z-index: 20;
+        }
+
+        #s9-drawer.slide-in {
+            opacity: 1;
+            transform: translateX(0%) scale(1.12);
+            filter: brightness(1.1) contrast(1.05);
+            box-shadow:
+                -20px 0 60px rgba(0,0,0,0.5),
+                0 10px 40px rgba(0,0,0,0.3),
+                0 0 0 3px rgba(60,140,255,0.6),
+                0 0 50px rgba(60,140,255,0.15);
+            border-radius: 8px;
+        }
+
+        #s9-drawer.slide-out {
+            opacity: 0;
+            transform: translateX(-30%) scale(0.95);
+            transition: all 0.5s cubic-bezier(0.55, 0, 1, 0.45);
+        }
+
+        #s9-drawer img {
+            width: 100%;
+            display: block;
+            border-radius: 8px;
+        }
+
+        /* 3D edge on right side of drawer */
+        #s9-drawer::after {
+            content: '';
+            position: absolute;
+            top: 0; right: -14px;
+            width: 14px; height: 100%;
+            background: linear-gradient(90deg, #888 0%, #555 40%, #333 100%);
+            border-radius: 0 6px 6px 0;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.3);
+        }
+
+        /* 3D edge on bottom of drawer */
+        #s9-drawer::before {
+            content: '';
+            position: absolute;
+            bottom: -10px; left: 0; right: 0;
+            height: 10px;
+            background: linear-gradient(180deg, #777 0%, #444 100%);
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Label */
+        #s9-drawer-label {
+            position: absolute;
+            left: 50%; top: -36px;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1a3a6a, #2a5a9a);
+            color: #fff; padding: 6px 22px; border-radius: 20px;
+            font-size: 14px; font-weight: 700;
+            white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            letter-spacing: 0.5px;
+        }
+
+        /* Done checkmarks on the slide */
+        .s9-done-mark {
+            position: absolute;
+            left: 5%;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(0,200,100,0.9);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 16px; font-weight: 900;
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(0.3);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        .s9-done-mark.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* ═══════════════════════════════
+           SLIDE 11 — Drawer slide-in (same style as slide 9)
+           ═══════════════════════════════ */
+        #s11-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; display: none;
+        }
+        #s11-overlay.active { display: block; }
+
+        #s11-dim {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            opacity: 0; transition: opacity 0.5s ease;
+        }
+        #s11-dim.on { opacity: 1; }
+
+        #s11-drawer {
+            position: absolute;
+            top: 50%; left: 50%;
+            max-width: 35%;
+            max-height: 88%;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translate(-50%, -50%) translateX(120%);
+            z-index: 20;
+        }
+        #s11-drawer.slide-in {
+            opacity: 1;
+            transform: translate(-50%, -50%) translateX(0%);
+            box-shadow:
+                0 25px 80px rgba(0,0,0,0.5),
+                0 0 0 3px rgba(60,140,255,0.5),
+                0 0 40px rgba(60,140,255,0.1);
+            border-radius: 10px;
+        }
+        #s11-drawer.slide-out {
+            opacity: 0;
+            transform: translate(-50%, -50%) translateX(-40%);
+            transition: all 0.4s cubic-bezier(0.55, 0, 1, 0.45);
+        }
+        #s11-drawer img {
+            width: 100%; display: block; border-radius: 10px;
+        }
+        #s11-drawer-label {
+            position: absolute;
+            left: 50%; top: -36px; transform: translateX(-50%);
+            background: linear-gradient(135deg, #0044aa, #0066dd);
+            color: #fff; padding: 6px 22px; border-radius: 20px;
+            font-size: 14px; font-weight: 700;
+            white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        /* Progress dots */
+        .s11-progress-dot {
+            position: absolute;
+            bottom: 3%; z-index: 25;
+            width: 12px; height: 12px; border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.4);
+            transition: all 0.4s ease;
+        }
+        .s11-progress-dot.active { background: #0088ff; border-color: #00aaff; transform: scale(1.3); box-shadow: 0 0 10px rgba(0,136,255,0.5); }
+        .s11-progress-dot.done { background: rgba(0,200,100,0.7); border-color: rgba(0,200,100,0.8); }
+
+        /* ═══════════════════════════════
+           SLIDE 7 — Cost image side panel
+           ═══════════════════════════════ */
+        #s7-panel {
+            display: none;
+            position: fixed;
+            right: 0; top: 0;
+            width: 33.3%;
+            height: calc(100vh - 60px);
+            background: #111;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            border-left: 2px solid #0066cc;
+            padding: 10px;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateX(100%);
+        }
+        #s7-panel.active {
+            display: flex;
+            transform: translateX(0);
+        }
+        #s7-panel img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        #s7-label {
+            position: absolute;
+            top: 10px; left: 10px;
+            background: rgba(0,100,200,0.85);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Slide container shrinks when s7 panel is open */
+        #slide-container.s7-split { width: 66.7%; }
+
+        /* ── Video Demo Panel ── */
+        #video-demo-panel {
+            display: none; position: fixed; right: 0; top: 0;
+            width: 33.3%; height: calc(100vh - 60px);
+            background: #111; z-index: 150;
+            flex-direction: column;
+            border-left: 2px solid #0066cc;
+            overflow: hidden;
+        }
+        #video-demo-panel.active { display: flex; }
+        #video-demo-panel video {
+            width: 100%; flex: 1 1 0; min-height: 0;
+            object-fit: contain; background: #000;
+        }
+        #video-demo-label {
+            position: absolute; top: 10px; left: 10px;
+            background: rgba(0,150,255,0.85); color: #fff;
+            padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; z-index: 101;
+        }
+
+        /* Video controls bar */
+        #video-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 8px;
+            background: #1a1a1a;
+            border-top: 2px solid #0066cc;
+            flex: 0 0 50px;
+            z-index: 200;
+            pointer-events: auto;
+            position: relative;
+        }
+        .vc-btn {
+            background: #333; color: #fff; border: 1px solid #555;
+            padding: 8px 14px; border-radius: 8px; cursor: pointer;
+            font-size: 16px; transition: background 0.2s;
+            min-width: 42px; text-align: center;
+            pointer-events: auto;
+            user-select: none;
+        }
+        .vc-btn:hover { background: #0066cc; border-color: #0088ff; }
+        .vc-btn:active { background: #0044aa; transform: scale(0.95); }
+        #vc-time {
+            color: #ccc; font-size: 12px; font-family: monospace;
+            min-width: 90px; text-align: center;
+        }
+
+        /* Slide container shrinks for video */
+        #slide-container.video-split { width: 66.7%; }
+
+        /* ── Slide 5 IT Panel ── */
+        #s5-it-panel {
+            display: none; position: fixed; right: 0; top: 0;
+            width: 50%; height: calc(100vh - 60px);
+            background: #111; z-index: 150;
+            flex-direction: column;
+            border-left: 2px solid #00cc66;
+        }
+        #s5-it-panel.active { display: flex; }
+        #s5-it-panel iframe {
+            width: 100%; flex: 1; border: none; background: #000;
+        }
+        #s5-it-label {
+            position: absolute; top: 10px; left: 10px;
+            background: rgba(0,180,80,0.85); color: #fff;
+            padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; z-index: 160;
+        }
+        #slide-container.s5-split { width: 50%; }
+
+        /* ── Nav ── */
+        #nav-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            background: rgba(20,20,20,0.95); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center; gap: 16px;
+            z-index: 200; border-top: 1px solid #333;
+        }
+        .nav-btn {
+            background: #222; color: #fff; border: 1px solid #444;
+            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 15px;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: #0066cc; border-color: #0088ff; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        #slide-counter { font-size: 16px; color: #aaa; min-width: 100px; text-align: center; font-weight: 600; }
+
+        #progress-bar {
+            position: fixed; top: 0; left: 0; height: 3px;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            transition: width 0.3s ease; z-index: 300;
+        }
+        #timer-indicator {
+            position: fixed; top: 12px; right: 12px;
+            background: rgba(255,165,0,0.9); color: #000;
+            padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700;
+            z-index: 300; display: none;
+        }
+        #keyboard-hints {
+            position: fixed; bottom: 70px; right: 16px;
+            background: rgba(30,30,30,0.9); padding: 12px 16px;
+            border-radius: 10px; font-size: 12px; color: #888; z-index: 200; line-height: 1.8;
+        }
+        #keyboard-hints kbd { background: #333; padding: 2px 8px; border-radius: 4px; color: #ccc; font-family: monospace; }
+        #fullscreen-btn {
+            position: fixed; top: 12px; left: 12px;
+            background: rgba(40,40,40,0.9); color: #aaa; border: none;
+            padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 18px; z-index: 300;
+        }
+        #fullscreen-btn:hover { color: #fff; }
+
+        /* Logo watermark on every slide — small to prevent copying */
+        #slide-logo {
+            position: absolute;
+            bottom: 6px; right: 8px;
+            height: 16px;
+            opacity: 0.35;
+            z-index: 10;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro-screen">
+    <div id="intro-overlay">
+        <div class="play-btn" onclick="startIntro()">&#9654; Click to Start</div>
+    </div>
+    <video id="intro-video" preload="auto">
+        <source src="/static/videos/Animation_AI_Hope_v8.mp4" type="video/mp4">
+    </video>
+</div>
+
+<!-- PRESENTATION -->
+<div id="presentation">
+    <div id="progress-bar"></div>
+    <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Fullscreen">&#x26F6;</button>
+
+    <!-- Normal slide -->
+    <div id="slide-container">
+        <div id="slide-wrapper">
+            <img id="slide-image" src="" alt="Slide">
+            <img id="slide-logo" src="/static/slides/logo.png" alt="">
+
+            <!-- Slide 5: 3D country shapes floating out -->
+            <div id="s5-overlay">
+                <!-- Nigeria — position matches green shape on map -->
+                <div class="s5-country-3d float1" style="left:71%;top:32%;width:45px;height:38px;">
+                    <img src="/static/slides/s5_nigeria.png" alt="Nigeria">
+                    <div class="label">UBA / Ecobank</div>
+                </div>
+                <!-- Kenya -->
+                <div class="s5-country-3d float2" style="left:80.5%;top:36%;width:25px;height:40px;">
+                    <img src="/static/slides/s5_kenya.png" alt="Kenya">
+                    <div class="label">Equity Group</div>
+                </div>
+                <!-- South Africa -->
+                <div class="s5-country-3d float3" style="left:75.5%;top:53%;width:55px;height:30px;">
+                    <img src="/static/slides/s5_southafrica.png" alt="South Africa">
+                    <div class="label">Standard Bank</div>
+                </div>
+            </div>
+
+            <!-- Slide 9: sliding drawer overlay -->
+            <div id="s9-overlay">
+                <div id="s9-dim"></div>
+                <!-- Done checkmarks at each block position -->
+                <div class="s9-done-mark" style="top:26%;">&#10003;</div>
+                <div class="s9-done-mark" style="top:39%;">&#10003;</div>
+                <div class="s9-done-mark" style="top:52%;">&#10003;</div>
+                <div class="s9-done-mark" style="top:65%;">&#10003;</div>
+                <div class="s9-done-mark" style="top:78%;">&#10003;</div>
+                <!-- The drawer that slides in/out -->
+                <div id="s9-drawer">
+                    <div id="s9-drawer-label">1/5 — LA DONNEE</div>
+                    <img id="s9-drawer-img" src="" alt="">
+                </div>
+            </div>
+
+            <!-- Slide 11: drawer overlay -->
+            <div id="s11-overlay">
+                <div id="s11-dim"></div>
+                <div id="s11-drawer">
+                    <div id="s11-drawer-label">1. AUTOMATISER</div>
+                    <img id="s11-drawer-img" src="" alt="">
+                </div>
+                <div class="s11-progress-dot" style="left:calc(50% - 42px);"></div>
+                <div class="s11-progress-dot" style="left:calc(50% - 14px);"></div>
+                <div class="s11-progress-dot" style="left:calc(50% + 14px);"></div>
+                <div class="s11-progress-dot" style="left:calc(50% + 42px);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6 view -->
+    <div id="slide6-view">
+        <div id="s6-row-strip">
+            <img id="s6-header-img" src="/static/slides/s6_header.png" alt="Header">
+            <div id="s6-row-wrapper">
+                <img id="s6-row-img" src="" alt="Current Role">
+            </div>
+        </div>
+        <div id="s6-indicator">
+            <span class="live-dot"></span>
+            <span id="s6-indicator-text"></span>
+        </div>
+        <iframe id="s6-demo-frame" src="about:blank"></iframe>
+    </div>
+
+    <!-- Slide 7: cost image panel -->
+    <div id="s7-panel">
+        <span id="s7-label">Uber — AI Cost Reality</span>
+        <img src="/static/slides/s7_cost_image.png" alt="Uber AI Costs">
+    </div>
+
+    <!-- Slide 5: IT Tool panel -->
+    <div id="s5-it-panel">
+        <span id="s5-it-label"><span class="live-dot"></span> IT Infrastructure — Thor</span>
+        <iframe id="s5-it-frame" src="about:blank" allow="fullscreen"></iframe>
+    </div>
+
+    <!-- Video demo panel -->
+    <div id="video-demo-panel">
+        <span id="video-demo-label"><span class="live-dot"></span> Copilot Demo</span>
+        <video id="demo-video" preload="auto">
+            <source src="/static/videos/copilot_demo.mp4" type="video/mp4">
+        </video>
+        <div id="video-controls">
+            <button class="vc-btn" onclick="vcRestart()" title="Restart">&#9198;</button>
+            <button class="vc-btn" onclick="vcBack()" title="-5s">&#9664;&#9664;</button>
+            <button class="vc-btn" onclick="vcStepBack()" title="-1 frame">&#9664;|</button>
+            <button class="vc-btn" id="vc-play-btn" onclick="vcTogglePlay()" title="Play/Pause">&#9654;</button>
+            <button class="vc-btn" onclick="vcStepFwd()" title="+1 frame">|&#9654;</button>
+            <button class="vc-btn" onclick="vcFwd()" title="+5s">&#9654;&#9654;</button>
+            <span id="vc-time">0:00 / 0:00</span>
+        </div>
+    </div>
+
+    <div id="timer-indicator"></div>
+    <div id="keyboard-hints">
+        <kbd>&rarr;</kbd> Next &nbsp; <kbd>&larr;</kbd> Prev &nbsp;
+        <kbd>F</kbd> Fullscreen &nbsp; <kbd>D</kbd> Toggle Demo
+    </div>
+    <div id="nav-bar">
+        <button class="nav-btn" id="btn-prev" onclick="prevSlide()">&larr; Prev</button>
+        <span id="slide-counter">1 / 15</span>
+        <button class="nav-btn" id="btn-next" onclick="nextSlide()">Next &rarr;</button>
+        <button class="nav-btn" id="btn-demo" onclick="toggleVideoDemo()" style="margin-left:20px;">
+            &#9654; Copilot Video
+        </button>
+    </div>
+</div>
+
+<script>
+const TOTAL_SLIDES = 15;
+let currentSlide = 1;
+let slide4Timer = null, slide4Countdown = 60;
+let videoDemoActive = false, introPlayed = false;
+
+// ════════════════════
+// INTRO
+// ════════════════════
+function startIntro() {
+    document.getElementById('intro-overlay').classList.add('hidden');
+    const v = document.getElementById('intro-video');
+    v.play();
+    v.addEventListener('ended', () => {
+        document.getElementById('intro-screen').style.display = 'none';
+        document.getElementById('presentation').style.display = 'block';
+        introPlayed = true;
+        goToSlide(1);
+    });
+}
+document.getElementById('intro-video').addEventListener('click', () => {
+    if (introPlayed) return;
+    document.getElementById('intro-screen').style.display = 'none';
+    document.getElementById('presentation').style.display = 'block';
+    introPlayed = true;
+    goToSlide(1);
+});
+
+// ════════════════════
+// SLIDE 5 — 3D Floating
+// ════════════════════
+function startSlide5() {
+    const ov = document.getElementById('s5-overlay');
+    ov.classList.add('active');
+    const items = ov.querySelectorAll('.s5-country-3d');
+    items.forEach(el => el.classList.remove('pop'));
+    setTimeout(() => items[0].classList.add('pop'), 600);
+    setTimeout(() => items[1].classList.add('pop'), 1200);
+    setTimeout(() => items[2].classList.add('pop'), 1800);
+}
+let s5ITActive = false;
+function stopSlide5() {
+    const ov = document.getElementById('s5-overlay');
+    ov.classList.remove('active');
+    ov.querySelectorAll('.s5-country-3d').forEach(el => el.classList.remove('pop'));
+    s5HideIT();
+}
+function s5ShowIT() {
+    document.getElementById('slide-container').classList.add('s5-split');
+    document.getElementById('s5-it-panel').classList.add('active');
+    document.getElementById('s5-it-frame').src = 'https://100.96.27.59:8500/';
+    s5ITActive = true;
+    document.getElementById('slide-counter').textContent = `5.1 / ${TOTAL_SLIDES}`;
+}
+function s5HideIT() {
+    document.getElementById('slide-container').classList.remove('s5-split');
+    document.getElementById('s5-it-panel').classList.remove('active');
+    document.getElementById('s5-it-frame').src = 'about:blank';
+    s5ITActive = false;
+}
+
+// ════════════════════
+// SLIDE 6 — Row + Demo
+// ════════════════════
+const S6_ROWS = [
+    { label: 'Analyste Credit', url: 'https://credit-ai-dashboard-819ddd59bf82.herokuapp.com/data-cleanup' },
+    { label: 'Gestionnaire Risques', url: 'https://credit-ai-dashboard-819ddd59bf82.herokuapp.com/data-cleanup' },
+    { label: 'Charge de Clientele', url: 'https://credit-ai-dashboard-819ddd59bf82.herokuapp.com/data-cleanup' },
+    { label: 'Conformite / KYC', url: 'https://credit-ai-dashboard-819ddd59bf82.herokuapp.com/decisions' },
+    { label: 'Responsable IT', url: 'https://100.96.27.59:8500' },
+    { label: 'Direction Financiere', url: 'http://100.81.52.22:8001/' },
+    { label: 'Direction Generale', url: 'https://credit-ai-dashboard-819ddd59bf82.herokuapp.com/decisions' },
+];
+let s6Step = -1, s6Active = false, s6Url = '';
+
+function s6Enter(step) {
+    document.getElementById('slide-container').style.display = 'none';
+    document.getElementById('slide6-view').classList.add('active');
+    const ri = document.getElementById('s6-row-img');
+    ri.style.opacity = '0';
+    setTimeout(() => { ri.src = `/static/slides/s6_row_${step+1}.png`; ri.style.opacity = '1'; }, 100);
+    const row = S6_ROWS[step];
+    document.getElementById('s6-indicator-text').textContent = `${row.label} (${step+1}/${S6_ROWS.length}) — Live Demo`;
+    const iframe = document.getElementById('s6-demo-frame');
+    iframe.src = 'about:blank';
+    setTimeout(() => { iframe.src = row.url; s6Url = row.url; }, 50);
+    s6Active = true;
+    document.getElementById('slide-counter').textContent = `6.${step+1} / ${TOTAL_SLIDES}`;
+}
+function s6Exit() {
+    s6Step = -1; s6Active = false; s6Url = '';
+    document.getElementById('slide6-view').classList.remove('active');
+    document.getElementById('s6-demo-frame').src = 'about:blank';
+    document.getElementById('slide-container').style.display = 'flex';
+}
+
+// ════════════════════
+// SLIDE 9 — Sliding drawer animation
+// ════════════════════
+const S9_LABELS = ['LA DONNEE', "L'INFRASTRUCTURE HYBRIDE", 'LA GOUVERNANCE', 'LES COMPETENCES', 'LE PILOTAGE'];
+// Block Y positions as % of image height (center of each block)
+const S9_POSITIONS = [28.7, 41.3, 54.3, 67.2, 79.8];
+let s9Step = -1, s9Active = false;
+
+function s9Enter(step) {
+    const overlay = document.getElementById('s9-overlay');
+    const drawer = document.getElementById('s9-drawer');
+    const drawerImg = document.getElementById('s9-drawer-img');
+    const drawerLabel = document.getElementById('s9-drawer-label');
+    const checks = document.querySelectorAll('.s9-done-mark');
+
+    overlay.classList.add('active');
+    document.getElementById('s9-dim').classList.add('on');
+    s9Active = true;
+
+    // First slide out the previous block (if any)
+    drawer.classList.remove('slide-in');
+    drawer.classList.add('slide-out');
+
+    setTimeout(() => {
+        // Position drawer at the block's Y position
+        drawer.style.top = (S9_POSITIONS[step] - 6) + '%';
+
+        // Set image and label
+        drawerImg.src = `/static/slides/s9_block_${step + 1}.png`;
+        drawerLabel.textContent = `${step + 1}/${S9_LABELS.length} — ${S9_LABELS[step]}`;
+
+        // Reset and slide in from right
+        drawer.classList.remove('slide-out');
+        // Force reflow
+        void drawer.offsetWidth;
+        drawer.classList.add('slide-in');
+    }, s9Step >= 0 ? 400 : 50);  // faster on first entry
+
+    // Show checkmarks for completed blocks
+    checks.forEach((c, i) => {
+        if (i < step) c.classList.add('show');
+        else c.classList.remove('show');
+    });
+
+    document.getElementById('slide-counter').textContent = `9.${step + 1} / ${TOTAL_SLIDES}`;
+}
+
+function s9Exit() {
+    s9Step = -1; s9Active = false;
+    const drawer = document.getElementById('s9-drawer');
+    drawer.classList.remove('slide-in');
+    drawer.classList.add('slide-out');
+    setTimeout(() => {
+        document.getElementById('s9-overlay').classList.remove('active');
+        document.getElementById('s9-dim').classList.remove('on');
+        drawer.classList.remove('slide-out');
+        document.querySelectorAll('.s9-done-mark').forEach(c => c.classList.remove('show'));
+    }, 500);
+}
+
+// ════════════════════
+// SLIDE 11 — Zoom into each phase column
+// ════════════════════
+const S11_LABELS = ['1. AUTOMATISER', '2. COMPRENDRE', '3. TRANSFORMER', '4. AGIR'];
+// transform-origin X% for each column center
+// Drawer slide-in (same pattern as slide 9)
+let s11Step = -1, s11Active = false;
+
+function s11Enter(step) {
+    const overlay = document.getElementById('s11-overlay');
+    const drawer = document.getElementById('s11-drawer');
+    const drawerImg = document.getElementById('s11-drawer-img');
+    const drawerLabel = document.getElementById('s11-drawer-label');
+
+    overlay.classList.add('active');
+    document.getElementById('s11-dim').classList.add('on');
+    s11Active = true;
+
+    drawer.classList.remove('slide-in');
+    drawer.classList.add('slide-out');
+
+    setTimeout(() => {
+        drawerImg.src = `/static/slides/s11_col_${step + 1}.png`;
+        drawerLabel.textContent = `${step + 1}. ${S11_LABELS[step]}`;
+        drawer.classList.remove('slide-out');
+        void drawer.offsetWidth;
+        drawer.classList.add('slide-in');
+    }, s11Step >= 0 ? 400 : 50);
+
+    const dots = document.querySelectorAll('.s11-progress-dot');
+    dots.forEach((d, i) => {
+        d.classList.remove('active', 'done');
+        if (i < step) d.classList.add('done');
+        else if (i === step) d.classList.add('active');
+    });
+
+    document.getElementById('slide-counter').textContent = `11.${step + 1} / ${TOTAL_SLIDES}`;
+}
+
+function s11Exit() {
+    s11Step = -1; s11Active = false;
+    const drawer = document.getElementById('s11-drawer');
+    drawer.classList.remove('slide-in');
+    drawer.classList.add('slide-out');
+    setTimeout(() => {
+        document.getElementById('s11-overlay').classList.remove('active');
+        document.getElementById('s11-dim').classList.remove('on');
+        drawer.classList.remove('slide-out');
+        document.querySelectorAll('.s11-progress-dot').forEach(d => d.classList.remove('active', 'done'));
+    }, 500);
+}
+
+// ════════════════════
+// SLIDE 7 — Cost image panel
+// ════════════════════
+let s7Active = false;
+
+function s7Show() {
+    document.getElementById('slide-container').classList.add('s7-split');
+    const panel = document.getElementById('s7-panel');
+    panel.style.display = 'flex';
+    // Force reflow then animate
+    void panel.offsetWidth;
+    panel.classList.add('active');
+    s7Active = true;
+}
+
+function s7Hide() {
+    document.getElementById('slide-container').classList.remove('s7-split');
+    document.getElementById('s7-panel').classList.remove('active');
+    setTimeout(() => { document.getElementById('s7-panel').style.display = 'none'; }, 600);
+    s7Active = false;
+}
+
+// ════════════════════
+// NAVIGATION
+// ════════════════════
+function goToSlide(n) {
+    if (n < 1 || n > TOTAL_SLIDES) return;
+    // Always stop slide 5 animation when navigating (it persists in the DOM)
+    stopSlide5();
+    if (currentSlide === 6 && n !== 6) s6Exit();
+    if (currentSlide === 9 && n !== 9) s9Exit();
+    if (currentSlide === 7 && n !== 7) s7Hide();
+    if (currentSlide === 11 && n !== 11) s11Exit();
+    if (currentSlide === 4 && n !== 4) { clearSlide4Timer(); hideVideoDemo(); }
+
+    currentSlide = n;
+    document.getElementById('slide-container').style.display = 'flex';
+    document.getElementById('slide6-view').classList.remove('active');
+    document.getElementById('slide-image').src = `/static/slides/slide_${n}.png`;
+
+    if (n === 6) s6Step = -1;
+    if (n === 9) s9Step = -1;
+    if (n === 11) s11Step = -1;
+
+    document.getElementById('slide-counter').textContent = `${n} / ${TOTAL_SLIDES}`;
+    document.getElementById('btn-prev').disabled = (n === 1);
+    document.getElementById('btn-next').disabled = (n === TOTAL_SLIDES);
+    document.getElementById('progress-bar').style.width = (n / TOTAL_SLIDES * 100) + '%';
+
+    if (n === 4) startSlide4Timer();
+    if (n === 5) setTimeout(startSlide5, 500);
+}
+
+function nextSlide() {
+    // Slide 5: show IT tool, then move on
+    if (currentSlide === 5) {
+        if (!s5ITActive) { s5ShowIT(); return; }
+        else { s5HideIT(); goToSlide(6); return; }
+    }
+    // Slide 7: show cost image on first next, then move on
+    if (currentSlide === 7) {
+        if (!s7Active) { s7Show(); return; }
+        else { s7Hide(); goToSlide(8); return; }
+    }
+    // Slide 6 sub-steps
+    if (currentSlide === 6) {
+        if (s6Step < S6_ROWS.length - 1) { s6Step++; s6Enter(s6Step); return; }
+        else { s6Exit(); goToSlide(7); return; }
+    }
+    // Slide 9 sub-steps
+    if (currentSlide === 9) {
+        if (s9Step < S9_LABELS.length - 1) { s9Step++; s9Enter(s9Step); return; }
+        else { s9Exit(); goToSlide(10); return; }
+    }
+    // Slide 11 sub-steps
+    if (currentSlide === 11) {
+        if (s11Step < S11_LABELS.length - 1) { s11Step++; s11Enter(s11Step); return; }
+        else if (s11Step === S11_LABELS.length - 1) { s11Exit(); s11Step = 99; return; }  // back to full slide
+        else { goToSlide(12); return; }  // already back on full slide, move on
+    }
+    goToSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+    // Slide 5: hide IT tool first
+    if (currentSlide === 5 && s5ITActive) { s5HideIT(); document.getElementById('slide-counter').textContent = `5 / ${TOTAL_SLIDES}`; return; }
+    // Slide 7: hide image first
+    if (currentSlide === 7 && s7Active) { s7Hide(); return; }
+    // Slide 6 sub-steps
+    if (currentSlide === 6 && s6Step >= 0) {
+        s6Step--;
+        if (s6Step >= 0) s6Enter(s6Step);
+        else { s6Exit(); goToSlide(6); }
+        return;
+    }
+    // Slide 9 sub-steps
+    if (currentSlide === 9 && s9Step >= 0) {
+        s9Step--;
+        if (s9Step >= 0) s9Enter(s9Step);
+        else { s9Exit(); goToSlide(9); }
+        return;
+    }
+    // Slide 11 sub-steps
+    if (currentSlide === 11 && s11Step >= 0) {
+        s11Step--;
+        if (s11Step >= 0) s11Enter(s11Step);
+        else { s11Exit(); goToSlide(11); }
+        return;
+    }
+    goToSlide(currentSlide - 1);
+}
+
+// ════════════════════
+// SLIDE 4 — Timer + Video
+// ════════════════════
+function startSlide4Timer() {
+    slide4Countdown = 60;
+    const t = document.getElementById('timer-indicator');
+    t.style.display = 'block';
+    t.textContent = `Copilot Demo in ${slide4Countdown}s`;
+    slide4Timer = setInterval(() => {
+        slide4Countdown--;
+        if (slide4Countdown > 0) t.textContent = `Copilot Demo in ${slide4Countdown}s`;
+        else { clearInterval(slide4Timer); t.style.display = 'none'; showVideoDemo(); }
+    }, 1000);
+}
+function clearSlide4Timer() {
+    if (slide4Timer) { clearInterval(slide4Timer); slide4Timer = null; }
+    document.getElementById('timer-indicator').style.display = 'none';
+}
+function showVideoDemo() {
+    document.getElementById('slide-container').classList.add('video-split');
+    document.getElementById('video-demo-panel').classList.add('active');
+    const v = document.getElementById('demo-video');
+    v.currentTime = 0; v.play();
+    videoDemoActive = true;
+    document.getElementById('btn-demo').innerHTML = '&#9632; Hide Video';
+    document.getElementById('vc-play-btn').innerHTML = '&#9646;&#9646;';
+    vcUpdateTime();
+}
+function hideVideoDemo() {
+    document.getElementById('slide-container').classList.remove('video-split');
+    document.getElementById('video-demo-panel').classList.remove('active');
+    document.getElementById('demo-video').pause();
+    videoDemoActive = false;
+    document.getElementById('btn-demo').innerHTML = '&#9654; Copilot Video';
+}
+function toggleVideoDemo() {
+    if (videoDemoActive) hideVideoDemo();
+    else { clearSlide4Timer(); showVideoDemo(); }
+}
+
+// Video controls
+function vcTogglePlay() {
+    const v = document.getElementById('demo-video');
+    const btn = document.getElementById('vc-play-btn');
+    if (v.paused) { v.play(); btn.innerHTML = '&#9646;&#9646;'; }
+    else { v.pause(); btn.innerHTML = '&#9654;'; }
+}
+function vcRestart() {
+    const v = document.getElementById('demo-video');
+    v.currentTime = 0; v.play();
+    document.getElementById('vc-play-btn').innerHTML = '&#9646;&#9646;';
+}
+function vcBack() { document.getElementById('demo-video').currentTime -= 5; }
+function vcFwd() { document.getElementById('demo-video').currentTime += 5; }
+function vcStepBack() {
+    const v = document.getElementById('demo-video');
+    v.pause(); v.currentTime = Math.max(0, v.currentTime - 1/30);
+    document.getElementById('vc-play-btn').innerHTML = '&#9654;';
+}
+function vcStepFwd() {
+    const v = document.getElementById('demo-video');
+    v.pause(); v.currentTime += 1/30;
+    document.getElementById('vc-play-btn').innerHTML = '&#9654;';
+}
+function vcUpdateTime() {
+    const v = document.getElementById('demo-video');
+    const fmt = (s) => { const m = Math.floor(s/60); return m + ':' + String(Math.floor(s%60)).padStart(2,'0'); };
+    const el = document.getElementById('vc-time');
+    if (el) el.textContent = `${fmt(v.currentTime)} / ${fmt(v.duration || 0)}`;
+    if (videoDemoActive) requestAnimationFrame(vcUpdateTime);
+}
+
+// ════════════════════
+// FULLSCREEN + KEYBOARD
+// ════════════════════
+function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+}
+
+document.addEventListener('keydown', (e) => {
+    switch(e.key) {
+        case 'ArrowRight': case ' ': e.preventDefault(); nextSlide(); break;
+        case 'ArrowLeft': e.preventDefault(); prevSlide(); break;
+        case 'f': case 'F': toggleFullscreen(); break;
+        case 'd': case 'D': toggleVideoDemo(); break;
+        case 'Escape':
+            if (videoDemoActive) hideVideoDemo();
+            if (s6Active) { s6Exit(); goToSlide(6); }
+            if (s9Active) { s9Exit(); document.getElementById('slide-counter').textContent = `9 / ${TOTAL_SLIDES}`; }
+            if (s11Active) { s11Exit(); document.getElementById('slide-counter').textContent = `11 / ${TOTAL_SLIDES}`; }
+            break;
+        case 'Home': goToSlide(1); break;
+        case 'End': goToSlide(TOTAL_SLIDES); break;
+    }
+    if (e.key >= '1' && e.key <= '9') goToSlide(parseInt(e.key));
+});
+</script>
+</body>
+</html>
